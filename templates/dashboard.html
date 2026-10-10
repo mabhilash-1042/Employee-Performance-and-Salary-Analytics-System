@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Employee Analytics{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><p class="eyebrow">PEOPLE INSIGHTS</p><h1>Employee analytics</h1><p class="subheading">A clear view of performance, productivity, and compensation.</p></div>
+  <a class="button secondary" href="{{ url_for('export_csv') }}">↓ Export CSV</a>
+</section>
+<section class="stat-grid">
+  <article class="stat-card"><div class="stat-label">Total employees</div><div class="stat-value">{{ stats.total }}</div><div class="stat-foot">Across all departments</div></article>
+  <article class="stat-card"><div class="stat-label">Average performance</div><div class="stat-value">{{ "%.1f"|format(stats.avg_performance) }}<small>/100</small></div><div class="stat-foot">Performance score</div></article>
+  <article class="stat-card"><div class="stat-label">Average annual salary</div><div class="stat-value">₹{{ "{:,.0f}".format(stats.avg_salary) }}</div><div class="stat-foot">Per employee</div></article>
+  <article class="stat-card"><div class="stat-label">High performers</div><div class="stat-value">{{ stats.high_performers or 0 }}</div><div class="stat-foot">Score of 85 or higher</div></article>
+</section>
+<section class="chart-grid">
+  <article class="panel"><div class="panel-heading"><div><h2>Performance by employee</h2><p>Scores out of 100</p></div></div><div class="chart-wrap"><canvas id="performanceChart"></canvas></div></article>
+  <article class="panel"><div class="panel-heading"><div><h2>Average salary by department</h2><p>Annual salary in INR</p></div></div><div class="chart-wrap"><canvas id="salaryChart"></canvas></div></article>
+</section>
+<section class="panel table-panel">
+  <div class="panel-heading table-heading"><div><h2>Employee records</h2><p>Review and manage employee data</p></div>
+    <form class="filters" method="get">
+      <input type="search" name="search" placeholder="Search name, code, role..." value="{{ search }}">
+      <select name="department"><option value="">All departments</option>{% for d in departments %}<option value="{{ d }}" {% if selected_department == d %}selected{% endif %}>{{ d }}</option>{% endfor %}</select>
+      <button class="button small" type="submit">Filter</button>
+      {% if search or selected_department %}<a class="clear-link" href="{{ url_for('dashboard') }}">Clear</a>{% endif %}
+    </form>
+  </div>
+  <div class="table-scroll"><table><thead><tr><th>Employee</th><th>Department</th><th>Role</th><th>Annual salary</th><th>Performance</th><th>Productivity</th><th>Review date</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for e in employees %}
+  <tr>
+    <td><div class="person"><span class="avatar">{{ e.name[:1] }}</span><span><strong>{{ e.name }}</strong><small>{{ e.employee_code }}</small></span></div></td>
+    <td><span class="dept-pill">{{ e.department }}</span></td><td>{{ e.role }}</td>
+    <td class="salary">₹{{ "{:,.0f}".format(e.salary) }}</td>
+    <td><div class="score"><div class="progress"><span style="width: {{ e.performance }}%"></span></div><b>{{ "%.0f"|format(e.performance) }}</b></div></td>
+    <td>{{ "%.0f"|format(e.productivity) }}%</td><td>{{ e.review_date }}</td>
+    <td><div class="actions"><a href="{{ url_for('edit_employee', employee_id=e.id) }}">Edit</a><form method="post" action="{{ url_for('delete_employee', employee_id=e.id) }}" onsubmit="return confirm('Delete this employee record?')"><button class="text-danger" type="submit">Delete</button></form></div></td>
+  </tr>
+  {% else %}<tr><td colspan="8" class="empty">No employees match your search.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="panel dept-panel"><div class="panel-heading"><div><h2>Department summary</h2><p>Compare headcount and average scores</p></div></div>
+<div class="dept-grid">{% for d in dept_rows %}<div class="dept-card"><div class="dept-name">{{ d.department }}</div><div class="dept-count">{{ d.headcount }} employee{% if d.headcount != 1 %}s{% endif %}</div><div class="dept-metrics"><span>Performance <b>{{ "%.1f"|format(d.avg_performance) }}</b></span><span>Avg. salary <b>₹{{ "{:,.0f}".format(d.avg_salary) }}</b></span></div></div>{% endfor %}</div>
+</section>
+<script>
+const chartData = {{ chart_data|tojson }};
+const commonOptions = {responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}};
+new Chart(document.getElementById('performanceChart'), {
+  type:'bar', data:{labels:chartData.names, datasets:[{label:'Performance', data:chartData.performance, borderRadius:6, backgroundColor:'#6c72e8'}]},
+  options:{...commonOptions, scales:{y:{beginAtZero:true,max:100,grid:{color:'#edf0f5'}},x:{grid:{display:false},ticks:{maxRotation:45,minRotation:0}}}}
+});
+new Chart(document.getElementById('salaryChart'), {
+  type:'bar', data:{labels:chartData.departments, datasets:[{label:'Average salary', data:chartData.departmentSalary, borderRadius:6, backgroundColor:'#28a78b'}]},
+  options:{...commonOptions, scales:{y:{beginAtZero:true,ticks:{callback:(v)=>'₹'+Number(v).toLocaleString('en-IN')},grid:{color:'#edf0f5'}},x:{grid:{display:false}}}}
+});
+</script>
+{% endblock %}

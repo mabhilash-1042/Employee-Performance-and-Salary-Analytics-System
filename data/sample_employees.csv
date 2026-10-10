@@ -1,0 +1,9 @@
+employee_code,name,department,role,salary,performance,productivity,review_date
+EMP001,Aarav Sharma,Engineering,Software Engineer,720000,91,88,2026-09-15
+EMP002,Priya Nair,HR,HR Executive,480000,84,82,2026-09-18
+EMP003,Rohan Verma,Sales,Sales Analyst,540000,78,91,2026-09-20
+EMP004,Ananya Rao,Engineering,Data Analyst,810000,96,93,2026-09-22
+EMP005,Kabir Singh,Finance,Accountant,600000,73,75,2026-09-25
+EMP006,Meera Iyer,Marketing,Marketing Specialist,510000,87,89,2026-09-26
+EMP007,Ishaan Gupta,Engineering,QA Engineer,660000,82,85,2026-09-27
+EMP008,Sana Khan,Sales,Sales Executive,450000,69,78,2026-09-29

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} · Employee Analytics{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">EMPLOYEE RECORDS</p><h1>{{ page_title }}</h1><p class="subheading">Enter accurate details to keep analytics useful.</p></div><a class="button secondary" href="{{ url_for('dashboard') }}">← Back to dashboard</a></section>
+<section class="panel form-panel">
+<form method="post" class="employee-form">
+  {% set e = employee %}
+  <div class="form-grid">
+    <label>Employee code<input name="employee_code" required placeholder="e.g. EMP009" value="{{ request.form.get('employee_code', e.employee_code if e else '') }}"></label>
+    <label>Full name<input name="name" required placeholder="Employee name" value="{{ request.form.get('name', e.name if e else '') }}"></label>
+    <label>Department<input name="department" required placeholder="e.g. Engineering" value="{{ request.form.get('department', e.department if e else '') }}"></label>
+    <label>Role / job title<input name="role" required placeholder="e.g. Data Analyst" value="{{ request.form.get('role', e.role if e else '') }}"></label>
+    <label>Annual salary (₹)<input type="number" name="salary" min="0" step="0.01" required placeholder="600000" value="{{ request.form.get('salary', e.salary if e else '') }}"></label>
+    <label>Performance score (0–100)<input type="number" name="performance" min="0" max="100" step="0.1" required placeholder="85" value="{{ request.form.get('performance', e.performance if e else '') }}"></label>
+    <label>Productivity score (0–100)<input type="number" name="productivity" min="0" max="100" step="0.1" required placeholder="80" value="{{ request.form.get('productivity', e.productivity if e else '') }}"></label>
+    <label>Review date<input type="date" name="review_date" required value="{{ request.form.get('review_date', e.review_date if e else '') }}"></label>
+  </div>
+  <div class="form-actions"><a class="button secondary" href="{{ url_for('dashboard') }}">Cancel</a><button class="button" type="submit">Save employee</button></div>
+</form>
+</section>
+{% endblock %}
